@@ -10,6 +10,7 @@ format:
     toc-location: left
     toc-title: "Contents"
     number-sections: false
+    theme: cosmo
 execute:
   echo: true
   eval: true
@@ -18,14 +19,95 @@ execute:
 
 ## Executive Summary
 
-Housing model prices are influenced by a variety of factors, prominently including the property's location. The zip code, which determines this location, must be appropriately incorporated into the model, as it fundamentally shapes the insights a decision tree can provide. Investigation demonstrates that modelling choices—especially encoding the zip code as a categorical versus a numerical variable—can have major implications for interpretability, feature importance, and actionable decisions. 
+::: {.callout-note icon="false"}
+## 🎯 Key Finding
+
+Housing model prices are influenced by a variety of factors, prominently including the property's location. The zip code, which determines this location, must be appropriately incorporated into the model, as it fundamentally shapes the insights a decision tree can provide. Investigation demonstrates that modelling choices—especially encoding the zip code as a categorical versus a numerical variable—can have major implications for interpretability, feature importance, and actionable decisions.
+::: 
 
 
 ## Introduction
 
 This report investigates the impact of zip code encoding on decision tree models, comparing the outcomes between R's `rpart` package and Python's `sklearn.tree.DecisionTreeRegressor`. The analysis discusses the current state-of-the-art methods for handling categorical variables in Python, grounding findings in official documentation and recent advances in the data science ecosystem. The report uses the Ames Housing dataset, which contains detailed information about residential properties sold in Ames, Iowa from 2006 to 2010.
 
+## Geographic Overview
 
+### Zip Codes and House Prices: Are They Related?
+
+The bar chart below illustrates the relationship between zip codes and average house prices in the Ames, Iowa area. Each zip code is represented as a separate category with its average price, clearly showing that price differences between zip codes reflect location-based factors (neighborhood quality, school districts, amenities) rather than any numerical relationship between the zip code numbers themselves. This visualization helps us dive deeper into our discussion on variable encoding and feature importance.
+
+```{python}
+#| label: zipcode-price-chart
+#| echo: false
+#| fig-width: 12
+#| fig-height: 6
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Load data and calculate average prices by zip code
+df = pd.read_csv("salesPriceData.csv")
+zipcode_prices = df.groupby('zipCode').agg({
+    'SalePrice': ['mean', 'count']
+}).reset_index()
+zipcode_prices.columns = ['zipCode', 'AvgPrice', 'Count']
+zipcode_prices = zipcode_prices.sort_values('AvgPrice', ascending=True)
+
+# Normalize prices for color mapping
+min_price = zipcode_prices['AvgPrice'].min()
+max_price = zipcode_prices['AvgPrice'].max()
+price_range = max_price - min_price
+
+# Create color map (green for low, red for high)
+colors = []
+for price in zipcode_prices['AvgPrice']:
+    normalized = (price - min_price) / price_range if price_range > 0 else 0.5
+    colors.append(plt.cm.RdYlGn_r(normalized))
+
+# Create figure
+fig, ax = plt.subplots(figsize=(7.5, 6))
+
+# Create horizontal bar chart
+bars = ax.barh(range(len(zipcode_prices)), 
+                zipcode_prices['AvgPrice'], 
+                color=colors,
+                alpha=0.8,
+                edgecolor='black',
+                linewidth=1.5)
+
+# Customize y-axis labels
+ax.set_yticks(range(len(zipcode_prices)))
+ax.set_yticklabels([f"{int(z)}" for z in zipcode_prices['zipCode']], fontsize=11)
+
+# Format axes
+ax.set_xlabel('Average House Price ($)', fontsize=12, fontweight='bold')
+ax.set_ylabel('Zip Code', fontsize=12, fontweight='bold')
+ax.set_title('Average House Prices by Zip Code in Ames, Iowa', 
+             fontsize=14, fontweight='bold', pad=15)
+
+# Set x-axis ticks at $75,000 intervals, capped at $350,000
+x_min = zipcode_prices['AvgPrice'].min()
+x_max = zipcode_prices['AvgPrice'].max()
+# Round down to nearest $75,000 for start
+tick_start = (x_min // 75000) * 75000
+# Cap the maximum at $350,000
+tick_end = min(350000, ((x_max // 75000) + 1) * 75000)
+x_ticks = np.arange(tick_start, tick_end + 75000, 75000)
+# Ensure we don't exceed $350,000
+x_ticks = x_ticks[x_ticks <= 350000]
+ax.set_xticks(x_ticks)
+
+# Add grid for better readability
+ax.grid(axis='x', alpha=0.3, linestyle='--')
+ax.set_axisbelow(True)
+
+# Format x-axis to show currency
+ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+
+plt.tight_layout()
+plt.show()
+```
 
 ```{python}
 #| label: load-and-model-python
@@ -215,22 +297,31 @@ df2 = df2.sort_values('SalePrice', ascending=False)
 ```
 
 
+---
+
 ## Discussion
 
+### Numerical vs Categorical Encoding
 
-### Numerical vs Categorical Encoding: 
-
-**How zip code should be modelled?**
-
+**How should zip code be modelled?**
 
 
-**Modelling zip code categorically:** Zip codes should be modelled as categorical variables, not numerical variables. Here are the reasons:
+
+::: {.callout-tip}
+## ✅ Modelling Zip Code Categorically
+
+Zip codes should be modelled as categorical variables, not numerical variables. Here are the reasons:
+:::
 
   - Zip code represents discrete geographical areas, essentially neighborhood or community, and are not values with any inherent numerical meaning or order that aids in predicting house prices.
   - Treating zip codes as categories allows the model to learn the specific average real estate price associated with each unique area.
   - As an example, the model can learn that average real estate prices inzip code "50025" are highest $328,219.135135, while those in zip code "50014" are $220,993.000000 are less expensive, but difference is price is due to location and not because of numerical difference between the two zip codes. 
 
-**Modelling zip code numerically:** Treating zip code as a numerical data leads to critical mistakes as:
+::: {.callout-warning}
+## ⚠️ Modelling Zip Code Numerically
+
+Treating zip code as a numerical data leads to critical mistakes as:
+:::
 
   - It incorrectly implies that the numerical difference between the two zip codes has a meaning (i.e. zip code 50025 is "numerically greater than" zip code 50014 and thus potentially expensive than zip code 50014 in linear way). 
   - However, this is incorrect and can severly confuse the model, as geographycally close zip codes (e.g. 50033 and 50034) might have very different average prices, while numerically distant ones might have similar prices. 
@@ -241,9 +332,20 @@ df2 = df2.sort_values('SalePrice', ascending=False)
 
 
 
-### R vs Python Implementation Differences:
+::: {.callout-important}
+## 💡 Key Insight: Non-Ordinal Categorical Variables
 
-**Investigting the case, Why do R and Python handle categorical variables differently?**
+**Zip codes are non-ordinal categorical variables.** Unlike ordinal variables, which have a meaningful sequence (such as "small, medium, large" or "1st, 2nd, 3rd place"), zip codes lack any inherent ordering that would aid in predicting house prices. There is no logical basis to assume that zip code 50013 represents a "higher" or "better" neighborhood than 50012—they are simply distinct geographic locations with their own unique characteristics. 
+
+This fundamental distinction explains why one-hot encoding (creating separate binary variables for each zip code) is the appropriate approach in Python. By treating each zip code as an independent category, one-hot encoding allows decision trees to recognize location-based patterns without imposing an artificial numerical relationship that would distort the model's interpretation of feature importance.
+:::
+
+
+---
+
+### R vs Python Implementation Differences
+
+**Why do R and Python handle categorical variables differently?**
 
 The fundamental distinction lies in how each implementation is designed to handle data types. The R `rpart` package automatically recognizes and natively handles categorical variables (known as factors) during the tree construction process.
 When `rpart encounters a factor variable, such as a zip code, it efficiently evaluates all possible groupings of categories at each potential split, identifying the optimal partition. This method is both computationally sound and conceptually correct because the algorithm understands that zip codes are discrete categories, not a continuous, ordered numerical sequence.
@@ -257,7 +359,7 @@ The core design of scikit-learn decision trees prevents them from natively handl
 
 **Between R & Python, which implementation is better for the case?**
 
-The rpart implementation in R simplifies the handling of categorical variables for this specific application. It manages them as unified features, allowing the algorithm to assess all potential category combinations during each split.
+The `rpart` implementation in R simplifies the handling of categorical variables for this specific application. It manages them as unified features, allowing the algorithm to assess all potential category combinations during each split.
 
 This approach ensures that feature importance for variables like zip codes remains cohesive, providing a single importance score for the entire variable rather than separate scores fragmented across numerous dummy variables.
 
@@ -265,7 +367,7 @@ Furthermore, the resulting tree structure is more intuitive, featuring clean spl
 
 However, Python's approach offers more flexibility for advanced preprocessing and is part of a robust data science ecosystem. The key takeaway is that data scientists working with categorical variables in Python need to understand the nuances of the platform's various tools, such as the one-hot encoding method, to choose the most suitable technique for their specific use case.
 
-This means, Python's sklearn.tree.DecisionTreeRegressor requires explicit encoding, such as one-hot encoding, to transform categorical variables (like zip codes) into a numerical format the algorithm can process; it cannot natively handle them in the same manner as R's rpart package.
+This means, Python's `sklearn.tree.DecisionTreeRegressor` requires explicit encoding, such as one-hot encoding, to transform categorical variables (like zip codes) into a numerical format the algorithm can process; it cannot natively handle them in the same manner as R's `rpart` package.
 
 In terms of which language better models a zip code as a categorical variable, both R and Python offer effective, yet distinct, approaches.
 
@@ -273,14 +375,18 @@ In terms of which language better models a zip code as a categorical variable, b
 
 - Python, while generally more flexible through libraries such as sklearn.tree.DecisionTreeRegressor, requires additional preprocessing steps to properly encode and handle categorical data before modeling can occur.
 
-**Feature Importance:**
+::: {.callout-note}
+## 📊 Feature Importance Summary
 
 When zip codes are encoded categorically, location consistently emerges as a top predictor of house prices—aligning with real estate market fundamentals where location is paramount. In contrast, numerical encoding suppresses the importance of zip codes and produces meaningless splits that have no practical interpretation. Proper encoding is therefore not merely a technical preprocessing step—it is essential for ensuring that models accurately reflect business reality and produce actionable insights.
+:::
 
 
 
 
-### Python Libraries for Categorical Variable Handling in Decision Trees:
+---
+
+### Python Libraries for Categorical Variable Handling in Decision Trees
 
 The statement accurately describes the evolution of handling categorical features in Python's machine learning ecosystem, particularly in the context of tree-based models.
 
@@ -318,6 +424,12 @@ Both libraries represent the current state-of-the-art for handling categorical v
 
 
 
+---
+
 ## Conclusion
 
+::: {.callout-important}
+## 🎯 Final Takeaway
+
 The selection of encoding methods for zip codes and other categorical variables is not a trivial or ancillary detail. This choice is instrumental in determining whether analytical models effectively reinforce business insights and reveal actionable patterns, or whether they obscure critical information. Consequently, decision-makers should mandate a categorical approach for location-based data and judiciously choose modeling tools to ensure their analysis provides clarity rather than confusion.
+:::

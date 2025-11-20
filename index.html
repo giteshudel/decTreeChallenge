@@ -36,7 +36,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="index_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="index_files/libs/bootstrap/bootstrap-d6a003b94517c951b2d65075d42fb01b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="index_files/libs/bootstrap/bootstrap-a74871fe4945b66d259aafc266475145.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 
 
 </head>
@@ -51,11 +51,15 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#executive-summary" id="toc-executive-summary" class="nav-link active" data-scroll-target="#executive-summary">Executive Summary</a></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#geographic-overview" id="toc-geographic-overview" class="nav-link" data-scroll-target="#geographic-overview">Geographic Overview</a>
+  <ul class="collapse">
+  <li><a href="#zip-codes-and-house-prices-are-they-related" id="toc-zip-codes-and-house-prices-are-they-related" class="nav-link" data-scroll-target="#zip-codes-and-house-prices-are-they-related">Zip Codes and House Prices: Are They Related?</a></li>
+  </ul></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a>
   <ul class="collapse">
-  <li><a href="#numerical-vs-categorical-encoding" id="toc-numerical-vs-categorical-encoding" class="nav-link" data-scroll-target="#numerical-vs-categorical-encoding">Numerical vs Categorical Encoding:</a></li>
-  <li><a href="#r-vs-python-implementation-differences" id="toc-r-vs-python-implementation-differences" class="nav-link" data-scroll-target="#r-vs-python-implementation-differences">R vs Python Implementation Differences:</a></li>
-  <li><a href="#python-libraries-for-categorical-variable-handling-in-decision-trees" id="toc-python-libraries-for-categorical-variable-handling-in-decision-trees" class="nav-link" data-scroll-target="#python-libraries-for-categorical-variable-handling-in-decision-trees">Python Libraries for Categorical Variable Handling in Decision Trees:</a></li>
+  <li><a href="#numerical-vs-categorical-encoding" id="toc-numerical-vs-categorical-encoding" class="nav-link" data-scroll-target="#numerical-vs-categorical-encoding">Numerical vs Categorical Encoding</a></li>
+  <li><a href="#r-vs-python-implementation-differences" id="toc-r-vs-python-implementation-differences" class="nav-link" data-scroll-target="#r-vs-python-implementation-differences">R vs Python Implementation Differences</a></li>
+  <li><a href="#python-libraries-for-categorical-variable-handling-in-decision-trees" id="toc-python-libraries-for-categorical-variable-handling-in-decision-trees" class="nav-link" data-scroll-target="#python-libraries-for-categorical-variable-handling-in-decision-trees">Python Libraries for Categorical Variable Handling in Decision Trees</a></li>
   </ul></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
@@ -98,24 +102,77 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="executive-summary" class="level2">
 <h2 class="anchored" data-anchor-id="executive-summary">Executive Summary</h2>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>🎯 Key Finding
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>Housing model prices are influenced by a variety of factors, prominently including the property’s location. The zip code, which determines this location, must be appropriately incorporated into the model, as it fundamentally shapes the insights a decision tree can provide. Investigation demonstrates that modelling choices—especially encoding the zip code as a categorical versus a numerical variable—can have major implications for interpretability, feature importance, and actionable decisions.</p>
+</div>
+</div>
 </section>
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>This report investigates the impact of zip code encoding on decision tree models, comparing the outcomes between R’s <code>rpart</code> package and Python’s <code>sklearn.tree.DecisionTreeRegressor</code>. The analysis discusses the current state-of-the-art methods for handling categorical variables in Python, grounding findings in official documentation and recent advances in the data science ecosystem. The report uses the Ames Housing dataset, which contains detailed information about residential properties sold in Ames, Iowa from 2006 to 2010.</p>
 </section>
+<section id="geographic-overview" class="level2">
+<h2 class="anchored" data-anchor-id="geographic-overview">Geographic Overview</h2>
+<section id="zip-codes-and-house-prices-are-they-related" class="level3">
+<h3 class="anchored" data-anchor-id="zip-codes-and-house-prices-are-they-related">Zip Codes and House Prices: Are They Related?</h3>
+<p>The bar chart below illustrates the relationship between zip codes and average house prices in the Ames, Iowa area. Each zip code is represented as a separate category with its average price, clearly showing that price differences between zip codes reflect location-based factors (neighborhood quality, school districts, amenities) rather than any numerical relationship between the zip code numbers themselves. This visualization helps us dive deeper into our discussion on variable encoding and feature importance.</p>
+<div id="cell-zipcode-price-chart" class="cell" data-fig-height="6" data-fig-width="12" data-execution_count="1">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/zipcode-price-chart-output-1.png" id="zipcode-price-chart" width="711" height="566" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
 <section id="discussion" class="level2">
 <h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
 <section id="numerical-vs-categorical-encoding" class="level3">
-<h3 class="anchored" data-anchor-id="numerical-vs-categorical-encoding">Numerical vs Categorical Encoding:</h3>
-<p><strong>How zip code should be modelled?</strong></p>
-<p><strong>Modelling zip code categorically:</strong> Zip codes should be modelled as categorical variables, not numerical variables. Here are the reasons:</p>
+<h3 class="anchored" data-anchor-id="numerical-vs-categorical-encoding">Numerical vs Categorical Encoding</h3>
+<p><strong>How should zip code be modelled?</strong></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>✅ Modelling Zip Code Categorically
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Zip codes should be modelled as categorical variables, not numerical variables. Here are the reasons:</p>
+</div>
+</div>
 <ul>
 <li>Zip code represents discrete geographical areas, essentially neighborhood or community, and are not values with any inherent numerical meaning or order that aids in predicting house prices.</li>
 <li>Treating zip codes as categories allows the model to learn the specific average real estate price associated with each unique area.</li>
 <li>As an example, the model can learn that average real estate prices inzip code “50025” are highest $328,219.135135, while those in zip code “50014” are $220,993.000000 are less expensive, but difference is price is due to location and not because of numerical difference between the two zip codes.</li>
 </ul>
-<p><strong>Modelling zip code numerically:</strong> Treating zip code as a numerical data leads to critical mistakes as:</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>⚠️ Modelling Zip Code Numerically
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Treating zip code as a numerical data leads to critical mistakes as:</p>
+</div>
+</div>
 <ul>
 <li><p>It incorrectly implies that the numerical difference between the two zip codes has a meaning (i.e.&nbsp;zip code 50025 is “numerically greater than” zip code 50014 and thus potentially expensive than zip code 50014 in linear way).</p></li>
 <li><p>However, this is incorrect and can severly confuse the model, as geographycally close zip codes (e.g.&nbsp;50033 and 50034) might have very different average prices, while numerically distant ones might have similar prices.</p></li>
@@ -125,10 +182,25 @@ ul.task-list li input[type="checkbox"] {
 <li>Feature importance becomes misleading. A zip code that should be highly predictive of house prices might appear unimportant because the numerical encoding doesn’t allow the tree to properly distinguish between different neighborhoods.</li>
 </ul></li>
 </ul>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>💡 Key Insight: Non-Ordinal Categorical Variables
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Zip codes are non-ordinal categorical variables.</strong> Unlike ordinal variables, which have a meaningful sequence (such as “small, medium, large” or “1st, 2nd, 3rd place”), zip codes lack any inherent ordering that would aid in predicting house prices. There is no logical basis to assume that zip code 50013 represents a “higher” or “better” neighborhood than 50012—they are simply distinct geographic locations with their own unique characteristics.</p>
+<p>This fundamental distinction explains why one-hot encoding (creating separate binary variables for each zip code) is the appropriate approach in Python. By treating each zip code as an independent category, one-hot encoding allows decision trees to recognize location-based patterns without imposing an artificial numerical relationship that would distort the model’s interpretation of feature importance.</p>
+</div>
+</div>
+<hr>
 </section>
 <section id="r-vs-python-implementation-differences" class="level3">
-<h3 class="anchored" data-anchor-id="r-vs-python-implementation-differences">R vs Python Implementation Differences:</h3>
-<p><strong>Investigting the case, Why do R and Python handle categorical variables differently?</strong></p>
+<h3 class="anchored" data-anchor-id="r-vs-python-implementation-differences">R vs Python Implementation Differences</h3>
+<p><strong>Why do R and Python handle categorical variables differently?</strong></p>
 <p>The fundamental distinction lies in how each implementation is designed to handle data types. The R <code>rpart</code> package automatically recognizes and natively handles categorical variables (known as factors) during the tree construction process. When `rpart encounters a factor variable, such as a zip code, it efficiently evaluates all possible groupings of categories at each potential split, identifying the optimal partition. This method is both computationally sound and conceptually correct because the algorithm understands that zip codes are discrete categories, not a continuous, ordered numerical sequence.</p>
 <p>This approach contrasts with popular libraries like Python’s <code>scikit-learn.DecisionTreeRegressor</code>, where the decision tree implementation requires categorical data to be converted into a numeric format (e.g., via one-hot encoding or ordinal encoding) before model training, as it does not inherently support the categorical data type. The official scikit-learn documentation explains this limitation clearly. According to the documentation at <a href="https://scikit-learn.org/stable/modules/tree.html">https://scikit-learn.org/stable/modules/tree.html</a>:</p>
 <blockquote class="blockquote">
@@ -136,21 +208,33 @@ ul.task-list li input[type="checkbox"] {
 </blockquote>
 <p>The core design of scikit-learn decision trees prevents them from natively handling categorical variables as R’s rpart package does. Consequently, users working with categorical data like zip codes must manually preprocess their data using methods such as one-hot encoding, where a separate binary column is created for each category. This approach has notable drawbacks: it significantly increases the number of features (one new column per zip code), fragments the overall importance of the original categorical variable across numerous dummy variables, and can complicate the interpretation of the resulting tree structure.</p>
 <p><strong>Between R &amp; Python, which implementation is better for the case?</strong></p>
-<p>The rpart implementation in R simplifies the handling of categorical variables for this specific application. It manages them as unified features, allowing the algorithm to assess all potential category combinations during each split.</p>
+<p>The <code>rpart</code> implementation in R simplifies the handling of categorical variables for this specific application. It manages them as unified features, allowing the algorithm to assess all potential category combinations during each split.</p>
 <p>This approach ensures that feature importance for variables like zip codes remains cohesive, providing a single importance score for the entire variable rather than separate scores fragmented across numerous dummy variables.</p>
 <p>Furthermore, the resulting tree structure is more intuitive, featuring clean splits such as “zipCode in {50010, 50011}” instead of multiple conditional statements like “zipCode_50010 == 1 OR zipCode_50011 == 1.”</p>
 <p>However, Python’s approach offers more flexibility for advanced preprocessing and is part of a robust data science ecosystem. The key takeaway is that data scientists working with categorical variables in Python need to understand the nuances of the platform’s various tools, such as the one-hot encoding method, to choose the most suitable technique for their specific use case.</p>
-<p>This means, Python’s sklearn.tree.DecisionTreeRegressor requires explicit encoding, such as one-hot encoding, to transform categorical variables (like zip codes) into a numerical format the algorithm can process; it cannot natively handle them in the same manner as R’s rpart package.</p>
+<p>This means, Python’s <code>sklearn.tree.DecisionTreeRegressor</code> requires explicit encoding, such as one-hot encoding, to transform categorical variables (like zip codes) into a numerical format the algorithm can process; it cannot natively handle them in the same manner as R’s <code>rpart</code> package.</p>
 <p>In terms of which language better models a zip code as a categorical variable, both R and Python offer effective, yet distinct, approaches.</p>
 <ul>
 <li><p>R excels in this specific scenario because packages like rpart are built to work with categorical variables natively. This direct functionality makes the process conceptually simpler for problems involving categorical data such as zip codes.</p></li>
 <li><p>Python, while generally more flexible through libraries such as sklearn.tree.DecisionTreeRegressor, requires additional preprocessing steps to properly encode and handle categorical data before modeling can occur.</p></li>
 </ul>
-<p><strong>Feature Importance:</strong></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>📊 Feature Importance Summary
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>When zip codes are encoded categorically, location consistently emerges as a top predictor of house prices—aligning with real estate market fundamentals where location is paramount. In contrast, numerical encoding suppresses the importance of zip codes and produces meaningless splits that have no practical interpretation. Proper encoding is therefore not merely a technical preprocessing step—it is essential for ensuring that models accurately reflect business reality and produce actionable insights.</p>
+</div>
+</div>
+<hr>
 </section>
 <section id="python-libraries-for-categorical-variable-handling-in-decision-trees" class="level3">
-<h3 class="anchored" data-anchor-id="python-libraries-for-categorical-variable-handling-in-decision-trees">Python Libraries for Categorical Variable Handling in Decision Trees:</h3>
+<h3 class="anchored" data-anchor-id="python-libraries-for-categorical-variable-handling-in-decision-trees">Python Libraries for Categorical Variable Handling in Decision Trees</h3>
 <p>The statement accurately describes the evolution of handling categorical features in Python’s machine learning ecosystem, particularly in the context of tree-based models.</p>
 <p>While scikit-learn’s DecisionTreeRegressor and other traditional scikit-learn tree implementations require explicit encoding of categorical variables, often through one-hot encoding, newer libraries offer more streamlined solutions.</p>
 <p><strong>Key points:</strong></p>
@@ -176,11 +260,24 @@ ul.task-list li input[type="checkbox"] {
 </blockquote>
 <p>Sources: - CatBoost Documentation: <a href="https://catboost.ai/en/docs/concepts/algorithm-main-stages_cat-to-numberic">https://catboost.ai/en/docs/concepts/algorithm-main-stages_cat-to-numberic</a></p>
 <p>Both libraries represent the current state-of-the-art for handling categorical variables within Python-based tree models. For practitioners prioritizing the interpretability inherent in single decision trees (as opposed to ensemble methods), the options are more constrained: one might leverage R’s rpart package, navigate the limitations of one-hot encoding within the scikit-learn library, or explore configuring LightGBM or CatBoost to operate with a single tree (recognizing that this approach sacrifices the performance benefits typically derived from ensembling).</p>
+<hr>
 </section>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>🎯 Final Takeaway
+</div>
+</div>
+<div class="callout-body-container callout-body">
 <p>The selection of encoding methods for zip codes and other categorical variables is not a trivial or ancillary detail. This choice is instrumental in determining whether analytical models effectively reinforce business insights and reveal actionable patterns, or whether they obscure critical information. Consequently, decision-makers should mandate a categorical approach for location-based data and judiciously choose modeling tools to ensure their analysis provides clarity rather than confusion.</p>
+</div>
+</div>
 </section>
 
 </main>
